@@ -1,0 +1,11 @@
+/build
+CMakeFiles
+
+*.pyc
+*.pyo
+__pycache__
+/venv
+
+*.svn-base
+*.bak
+.svn
