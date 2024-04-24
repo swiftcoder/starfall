@@ -32,12 +32,14 @@ width, height = 1280, 720
 def create_window(config=None):
 	return pyglet.window.Window(width, height, caption="Planets", visible=False, resizable=True, config=config)
 
-#try:
-#	config = pyglet.gl.Config(sample_buffers=1, samples=2, depth_size=24, double_buffer=True)
-#	window = create_window(config)
-#except pyglet.window.NoSuchConfigException:
-#	print 'format unavailable, falling back to defaults'
+# try:
+# 	config = pyglet.gl.Config(sample_buffers=2, samples=4, depth_size=24, double_buffer=True)
+# 	window = create_window(config)
+# except pyglet.window.NoSuchConfigException:
+# 	print('format unavailable, falling back to defaults')
 window = create_window()
+
+pixel_ratio = window.get_pixel_ratio()
 
 def make_noise():
 	params = {
@@ -153,7 +155,7 @@ def on_resize(w, h):
 	width, height = w, h
 	frame.w, frame.h = w, h
 
-	glViewport(0, 0, w, h)
+	glViewport(0, 0, int(w * pixel_ratio), int(h * pixel_ratio))
 
 	camera.set_perspective(radians(45), w/float(h), 0.01, 100000.0)
 

@@ -24,10 +24,11 @@ from .planet_shaders import *
 from .lod_sphere import LODSphere
 from .terrain_factory import TerrainFactory
 from .tree_factory import TreeFactory
+from .native_library import native_library
 
 import os
 # c support library
-planet_c = CDLL(os.getcwd() + '/build/planet/Debug/planet_c.dll')
+planet_c = CDLL(os.getcwd() + native_library('/build/planet', 'planet_c'))
 
 query_height = planet_c.query_height
 query_height.argtypes = [c_double*3, c_double, c_double, c_void_p]

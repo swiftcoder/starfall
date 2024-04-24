@@ -1,15 +1,18 @@
 
+import os
 from pyglet.gl import *
 from ctypes import *
 
 from .texture import Texture
+from .native_library import native_library
 
-import os
 # c support library
-noise_c = CDLL(os.getcwd() + '/build/noise/Debug/noise_c.dll')
+noise_c = CDLL(os.getcwd() + native_library('/build/noise', 'noise_c'))
+
 
 class noise_generator(Structure):
-	pass
+    pass
+
 
 noise_destroy = noise_c.noise_generator_destroy
 noise_destroy.argtypes = [POINTER(noise_generator)]
@@ -24,7 +27,8 @@ simplex_create.argtypes = []
 simplex_create.restype = POINTER(noise_generator)
 
 ridged_multifractal_create = noise_c.noise_generator_ridged_multifractal_create
-ridged_multifractal_create.argtypes = [POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator)]
+ridged_multifractal_create.argtypes = [POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(
+    noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator), POINTER(noise_generator)]
 ridged_multifractal_create.restype = POINTER(noise_generator)
 
 constant_value_get = noise_c.noise_generator_constant_value_get
@@ -35,78 +39,88 @@ constant_value_set = noise_c.noise_generator_constant_value_set
 constant_value_set.argtypes = [POINTER(noise_generator), c_double]
 constant_value_set.restype = None
 
-class Generator(object):
-	def c_generator(self):
-		raise NotImplementedError()
 
-	def glsl_code(self):
-		raise NotImplementedError()
-	def glsl_variables(self):
-		raise NotImplementedError()
+class Generator(object):
+    def c_generator(self):
+        raise NotImplementedError()
+
+    def glsl_code(self):
+        raise NotImplementedError()
+
+    def glsl_variables(self):
+        raise NotImplementedError()
+
 
 class Constant(Generator):
-	def __init__(self, value):
-		self._value = value
-		self.c_gen = constant_create(value)
+    def __init__(self, value):
+        self._value = value
+        self.c_gen = constant_create(value)
 
-		self._name = 'constant%d' % id(self)
-		self._code = '\nuniform float %s;\n' % self._name
+        self._name = 'constant%d' % id(self)
+        self._code = '\nuniform float %s;\n' % self._name
 
-	def __del__(self):
-		noise_destroy(self.c_gen)
+    def __del__(self):
+        noise_destroy(self.c_gen)
 
-	def _get_value(self):
-		return self._value
-	def _set_value(self, value):
-		self._value = value
-		constant_value_set(self.c_gen, value)
-	value = property(_get_value, _set_value)
+    def _get_value(self):
+        return self._value
 
-	def c_generator(self):
-		return self.c_gen
+    def _set_value(self, value):
+        self._value = value
+        constant_value_set(self.c_gen, value)
+    value = property(_get_value, _set_value)
 
-	def glsl_code(self):
-		return (
-			self._code,
-			self._name
-			)
-	def glsl_variables(self):
-		return (
-			{self._name: [self._value]},
-			{}
-			)
+    def c_generator(self):
+        return self.c_gen
+
+    def glsl_code(self):
+        return (
+            self._code,
+            self._name
+        )
+
+    def glsl_variables(self):
+        return (
+            {self._name: [self._value]},
+            {}
+        )
+
 
 def _simplex_texture():
-		table = [0,64,128,192,0,64,192,128,0,0,0,0,
-		  0,128,192,64,0,0,0,0,0,0,0,0,0,0,0,0,64,128,192,0,
-		  0,128,64,192,0,0,0,0,0,192,64,128,0,192,128,64,
-		  0,0,0,0,0,0,0,0,0,0,0,0,64,192,128,0,
-		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		  64,128,0,192,0,0,0,0,64,192,0,128,0,0,0,0,
-		  0,0,0,0,0,0,0,0,128,192,0,64,128,192,64,0,
-		  64,0,128,192,64,0,192,128,0,0,0,0,0,0,0,0,
-		  0,0,0,0,128,0,192,64,0,0,0,0,128,64,192,0,
-		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		  128,0,64,192,0,0,0,0,0,0,0,0,0,0,0,0,
-		  192,0,64,128,192,0,128,64,0,0,0,0,192,64,128,0,
-		  128,64,0,192,0,0,0,0,0,0,0,0,0,0,0,0,
-		  192,64,0,128,0,0,0,0,192,128,0,64,192,128,64,0]
+    table = [0, 64, 128, 192, 0, 64, 192, 128, 0, 0, 0, 0,
+             0, 128, 192, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 128, 192, 0,
+             0, 128, 64, 192, 0, 0, 0, 0, 0, 192, 64, 128, 0, 192, 128, 64,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 192, 128, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             64, 128, 0, 192, 0, 0, 0, 0, 64, 192, 0, 128, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 128, 192, 0, 64, 128, 192, 64, 0,
+             64, 0, 128, 192, 64, 0, 192, 128, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 128, 0, 192, 64, 0, 0, 0, 0, 128, 64, 192, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             128, 0, 64, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             192, 0, 64, 128, 192, 0, 128, 64, 0, 0, 0, 0, 192, 64, 128, 0,
+             128, 64, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             192, 64, 0, 128, 0, 0, 0, 0, 192, 128, 0, 64, 192, 128, 64, 0]
 
-		return Texture.create1D(64, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, (GLubyte * 256)(*table), GL_NEAREST, GL_REPEAT)
+    return Texture.create1D(64, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, (GLubyte * 256)(*table), GL_NEAREST, GL_REPEAT)
+
+
 simplex_simplex = _simplex_texture()
 
+
 class Simplex(Generator):
-	def __init__(self):
-		self.c_gen = simplex_create()
+    def __init__(self):
+        self.c_gen = simplex_create()
 
-		self._name = 'simplex%d' % id(self)
-		self._call = '%s(v)' % self._name
+        self._name = 'simplex%d' % id(self)
+        self._call = '%s(v)' % self._name
 
-		self._textures = {self._name + '_perm': self._perm_texture(), 'simplex_simplex': simplex_simplex}
+        self._textures = {
+            self._name + '_perm': self._perm_texture(), 'simplex_simplex': simplex_simplex}
 
-		self._code = '''
+        self._code = '''
 uniform sampler2D %(name)s_perm;
 uniform sampler1D simplex_simplex;
 
@@ -204,80 +218,84 @@ float %(name)s(vec3 P) {
 }
 		''' % {'name': self._name}
 
-	def __del__(self):
-		noise_destroy(self.c_gen)
+    def __del__(self):
+        noise_destroy(self.c_gen)
 
-	def _perm_texture(self):
-		perm = [151,160,137,91,90,15,
-		  131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
-		  190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
-		  88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
-		  77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
-		  102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
-		  135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
-		  5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
-		  223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
-		  129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
-		  251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
-		  49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
-		  138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]
+    def _perm_texture(self):
+        perm = [151, 160, 137, 91, 90, 15,
+                131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
+                190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
+                88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
+                77, 146, 158, 231, 83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244,
+                102, 143, 54, 65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196,
+                135, 130, 116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123,
+                5, 202, 38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42,
+                223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9,
+                129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97, 228,
+                251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239, 107,
+                49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
+                138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180]
 
-		grad = [[0,1,1],[0,1,-1],[0,-1,1],[0,-1,-1],
-			   [1,0,1],[1,0,-1],[-1,0,1],[-1,0,-1],
-			   [1,1,0],[1,-1,0],[-1,1,0],[-1,-1,0], # 12 cube edges
-			   [1,0,-1],[-1,0,-1],[0,-1,1],[0,1,1]] # 4 more to make 16
+        grad = [[0, 1, 1], [0, 1, -1], [0, -1, 1], [0, -1, -1],
+                [1, 0, 1], [1, 0, -1], [-1, 0, 1], [-1, 0, -1],
+                [1, 1, 0], [1, -1, 0], [-1, 1, 0], [-1, -1, 0],  # 12 cube edges
+                [1, 0, -1], [-1, 0, -1], [0, -1, 1], [0, 1, 1]]  # 4 more to make 16
 
-		buffer = cast(create_string_buffer(256*256*4), POINTER(c_ubyte))
+        buffer = cast(create_string_buffer(256*256*4), POINTER(c_ubyte))
 
-		for i in range(256):
-			for j in range(256):
-				offset = (i*256 + j)*4
-				value = perm[(j+perm[i]) & 0xFF]
-				buffer[offset+0] = grad[value % 12][0] * 64 + 64
-				buffer[offset+1] = grad[value % 12][1] * 64 + 64
-				buffer[offset+2] = grad[value % 12][2] * 64 + 64
-				buffer[offset+3] = value
+        for i in range(256):
+            for j in range(256):
+                offset = (i*256 + j)*4
+                value = perm[(j+perm[i]) & 0xFF]
+                buffer[offset+0] = grad[value % 12][0] * 64 + 64
+                buffer[offset+1] = grad[value % 12][1] * 64 + 64
+                buffer[offset+2] = grad[value % 12][2] * 64 + 64
+                buffer[offset+3] = value
 
-		return Texture.create2D(256, 256, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, buffer, GL_NEAREST, GL_REPEAT)
+        return Texture.create2D(256, 256, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, buffer, GL_NEAREST, GL_REPEAT)
 
-	def c_generator(self):
-		return self.c_gen
+    def c_generator(self):
+        return self.c_gen
 
-	def glsl_code(self):
-		return (
-			self._code,
-			self._call
-			)
-	def glsl_variables(self):
-		return (
-			{},
-			self._textures,
-			)
+    def glsl_code(self):
+        return (
+            self._code,
+            self._call
+        )
+
+    def glsl_variables(self):
+        return (
+            {},
+            self._textures,
+        )
+
 
 class RidgedMultifractal(Generator):
-	def __init__(self, basis, octaves, lacunarity, gain, offset, h, weight, freq):
-		self._nodes = [basis, octaves, lacunarity, gain, offset, h, weight, freq]
+    def __init__(self, basis, octaves, lacunarity, gain, offset, h, weight, freq):
+        self._nodes = [basis, octaves, lacunarity,
+                       gain, offset, h, weight, freq]
 
-		self.c_gen = ridged_multifractal_create(basis.c_generator(), octaves.c_generator(), lacunarity.c_generator(), gain.c_generator(), offset.c_generator(), h.c_generator(), weight.c_generator(), freq.c_generator())
+        self.c_gen = ridged_multifractal_create(basis.c_generator(), octaves.c_generator(), lacunarity.c_generator(
+        ), gain.c_generator(), offset.c_generator(), h.c_generator(), weight.c_generator(), freq.c_generator())
 
-		self._name = 'ridged_multifractal%d' % id(self)
-		self._call = '%s(v)' % self._name
+        self._name = 'ridged_multifractal%d' % id(self)
+        self._call = '%s(v)' % self._name
 
-	def __del__(self):
-		noise_destroy(self.c_gen)
+    def __del__(self):
+        noise_destroy(self.c_gen)
 
-	def c_generator(self):
-		return self.c_gen
+    def c_generator(self):
+        return self.c_gen
 
-	def glsl_code(self):
-		glsl = [n.glsl_code() for n in self._nodes]
+    def glsl_code(self):
+        glsl = [n.glsl_code() for n in self._nodes]
 
-		code = ''
+        code = ''
 
-		for g in glsl:
-			code += g[0]
+        for g in glsl:
+            code += g[0]
 
-		code = code + '''
+        code = code + '''
 float %(name)s(vec3 v) {
 	float lacunarity = %(lacunarity)s;
 	float gain = %(gain)s;
@@ -306,21 +324,22 @@ float %(name)s(vec3 v) {
 }
 		''' % {'name': self._name, 'basis': glsl[0][1], 'octaves': glsl[1][1], 'lacunarity': glsl[2][1], 'gain': glsl[3][1], 'offset': glsl[4][1], 'h': glsl[5][1], 'weight': glsl[6][1], 'freq': glsl[7][1]}
 
-		return (
-			code,
-			self._call
-			)
-	def glsl_variables(self):
-		glsl = [n.glsl_variables() for n in self._nodes]
+        return (
+            code,
+            self._call
+        )
 
-		uniforms = dict()
-		textures = dict()
+    def glsl_variables(self):
+        glsl = [n.glsl_variables() for n in self._nodes]
 
-		for g in glsl:
-			uniforms.update(g[0])
-			textures.update(g[1])
+        uniforms = dict()
+        textures = dict()
 
-		return (
-			uniforms,
-			textures
-			)
+        for g in glsl:
+            uniforms.update(g[0])
+            textures.update(g[1])
+
+        return (
+            uniforms,
+            textures
+        )
