@@ -79,13 +79,13 @@ class LineRenderer(Renderer):
 		
 		self._stroke_box(size)
 		
-		x, y = size.w/2 - pref_size.w/2 + 4, size.h/2 - pref_size.h/2 + 4 - self.font.descent
+		x, y = size.w//2 - pref_size.w//2 + 4, size.h//2 - pref_size.h//2 + 4 - self.font.descent
 		self._draw_string(title, x, y)
 	
 	def render_checkbox(self, size, pref_size, title, state):
 		self._set_colour(1, 1, 1)
 		
-		x, y = pref_size.h, size.h/2 - pref_size.h/2 + 4 - self.font.descent
+		x, y = pref_size.h, size.h//2 - pref_size.h//2 + 4 - self.font.descent
 		self._draw_string(title, x, y)
 		
 		s = pref_size.h - 8
@@ -97,7 +97,7 @@ class LineRenderer(Renderer):
 			self._fill_box( Size(s-2, s-2), 5, 5 )
 	
 	def render_slider(self, size, pref_size, value):
-		cy = size.h/2
+		cy = size.h//2
 		
 		self._set_colour(1, 1, 1)
 		self._stroke_box( Size(size.w, 4), 0, cy - 2 )
@@ -109,14 +109,14 @@ class LineRenderer(Renderer):
 	def render_label(self, size, pref_size, text):
 		self._set_colour(1, 1, 1)
 		
-		x, y = size.w/2 - pref_size.w/2 + 4, size.h/2 - pref_size.h/2 + 4 - self.font.descent
+		x, y = size.w//2 - pref_size.w//2 + 4, size.h//2 - pref_size.h//2 + 4 - self.font.descent
 		self._draw_string(text, x, y)
 	
 	def render_textbox(self, size, pref_size, text, active, caret):		
 		self._set_colour(1, 1, 1)
 		self._stroke_box(size)
 		
-		x, y = 4, size.h/2 - pref_size.h/2 + 4 - self.font.descent
+		x, y = 4, size.h//2 - pref_size.h//2 + 4 - self.font.descent
 		
 		self.push_clip()
 		self.set_clip(4, 4, size.w-8, size.h-8)
@@ -138,7 +138,7 @@ class LineRenderer(Renderer):
 		self._set_colour(1, 1, 1)
 		self._stroke_box(size)
 		
-		x, y = size.w/2 - pref_size.w/2 + 4, size.h/2 - pref_size.h/2 + 4 - self.font.descent
+		x, y = size.w//2 - pref_size.w//2 + 4, size.h//2 - pref_size.h//2 + 4 - self.font.descent
 		self._draw_string(title, x, y)
 	
 	def render_window_background(self, size, pref_size):

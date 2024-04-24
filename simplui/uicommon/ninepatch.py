@@ -57,10 +57,10 @@ class PixelData(object):
 	def is_black(self, x, y):
 		p = (y * self.width + x) * 4
 		if self.has_alpha:
-			if self.data[p+3] != '\xFF':
+			if self.data[p+3] != 255:
 				return False # transparent
 
-		return self.data[p:p+3] == '\x00\x00\x00'
+		return self.data[p:p+3] == b'\x00\x00\x00'
 
 class NinePatch(object):
 	"""A scalable 9-patch image.
@@ -250,7 +250,7 @@ class NinePatch(object):
 		height = max(height, self.height + 2)
 		
 		glBindTexture(self.texture.target, self.texture.id)
-		pyglet.graphics.draw_indexed(16, GL_QUADS, self.indices, ('v2f', self.get_vertices(x, y, width, height)), ('t2f', self.tex_coords))
+		pyglet.graphics.draw_indexed(16, GL_QUADS, self.indices, ('v2i', self.get_vertices(x, y, width, height)), ('t2f', self.tex_coords))
 		glBindTexture(self.texture.target, 0)
 	
 	def draw_around(self, x, y, width, height):
@@ -262,7 +262,7 @@ class NinePatch(object):
 			)
 	
 	def build_vertex_list(self, batch):
-		return batch.add_indexed(16, GL_QUADS, pyglet.graphics.TextureGroup(self.texture), self.indices, 'v2f', ('t2f', self.tex_coords))
+		return batch.add_indexed(16, GL_QUADS, pyglet.graphics.TextureGroup(self.texture), self.indices, 'v2i', ('t2f', self.tex_coords))
 	
 	def update_vertex_list(self, vertex_list, x, y, width, height):
 		width = max(width, self.width + 2)

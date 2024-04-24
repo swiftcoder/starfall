@@ -82,11 +82,11 @@ class Table(Element):
 			return
 		
 		if self.axis == 1:
-			extra = (size.h - self.pref_size.h) / len(self.children)
-			extra_b = (size.w - self.pref_size.w) / self.fields
+			extra = (size.h - self.pref_size.h) // len(self.children)
+			extra_b = (size.w - self.pref_size.w) // self.fields
 		else:
-			extra = (size.w - self.pref_size.w) / len(self.children)
-			extra_b = (size.h - self.pref_size.h) / self.fields
+			extra = (size.w - self.pref_size.w) // len(self.children)
+			extra_b = (size.h - self.pref_size.h) // self.fields
 		
 		state.renderer.push_transform()
 		state.renderer.translate_transform(self.padding, self.padding)

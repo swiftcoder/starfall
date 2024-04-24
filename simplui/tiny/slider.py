@@ -53,7 +53,7 @@ class Slider(Element):
 	def process(self, state, size):
 		if state.mouse:
 			p = state.renderer.world_to_local(state.mouse.x, state.mouse.y)
-			x = (p[0] - self.pref_size.h/2) / float(size.w - self.pref_size.h)
+			x = (p[0] - self.pref_size.h//2) / float(size.w - self.pref_size.h)
 			val = max(self.min, min(self.max, x))
 			
 			if not state.focus and state.mouse.type == Event.MouseDown and size.hit_test(*p):

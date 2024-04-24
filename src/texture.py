@@ -1,4 +1,5 @@
 
+from typing import Optional, Any
 from pyglet import image
 from pyglet.gl import *
 from ctypes import *

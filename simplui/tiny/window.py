@@ -91,7 +91,7 @@ class Window(object):
 	
 	def get_title(self):
 		return self._title_bar.title
-	def set_title(self):
+	def set_title(self, title):
 		self._title_bar.title = title
 	title = property(get_title, set_title)
 	

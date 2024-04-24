@@ -1,14 +1,14 @@
 # ------------------------------------------------------------------------------
 # Copyright (c) 2009 Tristam MacDonald
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions 
+# modification, are permitted provided that the following conditions
 # are met:
 #
 #  * Redistributions of source code must retain the above copyright
 #    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above copyright 
+#  * Redistributions in binary form must reproduce the above copyright
 #    notice, this list of conditions and the following disclaimer in
 #    the documentation and/or other materials provided with the
 #    distribution.
@@ -33,38 +33,34 @@
 
 import pyglet
 from .ninepatch import NinePatch
+import json
 
-try:
-	import json
-except ImportError:
-	try:
-		import simplejson as json
-	except ImportError:
-		import sys
-		print('\nsimplui requires json support. upgrade to python 2.6 or install the simplejson module.\n')
-		sys.exit(0)
 
 class Theme(dict):
-	def __init__(self, arg):
-		loader = pyglet.resource.Loader(path=arg)
-		
-		input = json.loads( loader.file('theme.json').read() )
-		
-		image = loader.texture( input['image'] )
-		
-		for k, v in input.items():
-			if isinstance(v, dict):
-				temp = {}
-				
-				for k2, v2 in v.items():
-					if k2.startswith('image'):
-						
-						temp[k2] = NinePatch( image.get_region(*v2) )
-					else:
-						temp[k2] = v2
-				
-				self[k] = temp
-			elif k != 'image':
-				self[k] = v
-			
-			self['image'] = image
+    def __init__(self, arg):
+        loader = pyglet.resource.Loader(path=arg)
+
+        input = json.loads(loader.file('theme.json').read())
+        print(input)
+
+        image = loader.texture(input['image'])
+
+        for k, v in input.items():
+            if isinstance(v, dict):
+                temp = {}
+
+                for k2, v2 in v.items():
+                    if k2.startswith('image'):
+                        temp[k2] = NinePatch(image.get_region(*v2))
+                        print(k2, 'padding', temp[k2].padding_left, temp[k2].padding_right,
+                              temp[k2].padding_top, temp[k2].padding_bottom)
+                        print(k2, 'stretch', temp[k2].stretch_left, temp[k2].stretch_right,
+                              temp[k2].stretch_top, temp[k2].stretch_bottom)
+                    else:
+                        temp[k2] = v2
+
+                self[k] = temp
+            elif k != 'image':
+                self[k] = v
+
+            self['image'] = image
