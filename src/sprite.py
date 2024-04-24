@@ -18,7 +18,7 @@ class Sprite(BillboardNode):
 		texcoords0 = [0,0, 1,0, 1,1, 0,1]
 		
 		indices = [0,1,2, 0,2,3]
-		# self.vlist = pyglet.graphics.vertex_list_indexed( len(verts)/2, indices, ('v2f', verts), ('0t2f', texcoords0) )
+		self.vlist = pyglet.graphics.vertex_list_indexed( len(verts)//2, indices, ('v2f', verts), ('0t2f', texcoords0) )
 		
 		self.radius = math.sqrt(sx**2 + sy**2)
 	
@@ -35,7 +35,7 @@ class Sprite(BillboardNode):
 		glColor4f(*self.tint)
 		
 		self.texture.bind()
-		# self.vlist.draw(pyglet.gl.GL_TRIANGLES)
+		self.vlist.draw(pyglet.gl.GL_TRIANGLES)
 		self.texture.unbind()
 		
 		glDisable(GL_BLEND)
