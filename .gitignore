@@ -4,8 +4,10 @@ CMakeFiles
 *.pyc
 *.pyo
 __pycache__
-/venv
+/.venv
 
 *.svn-base
 *.bak
 .svn
+
+/gen.txt

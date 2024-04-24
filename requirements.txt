@@ -1,0 +1,3 @@
+pyglet==1.5.28
+pillow
+demjson

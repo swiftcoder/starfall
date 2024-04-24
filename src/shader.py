@@ -19,9 +19,10 @@ class Shader:
 		self.createShader(frag, GL_FRAGMENT_SHADER)
 		self.createShader(geom, GL_GEOMETRY_SHADER)
 
-		glProgramParameteri(self.Handle, GL_GEOMETRY_INPUT_TYPE, GL_TRIANGLES)
-		glProgramParameteri(self.Handle, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP)
-		glProgramParameteri(self.Handle, GL_GEOMETRY_VERTICES_OUT, 4)
+		if len(geom) > 0:
+			glProgramParameteri(self.Handle, GL_GEOMETRY_INPUT_TYPE, GL_TRIANGLES)
+			glProgramParameteri(self.Handle, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP)
+			glProgramParameteri(self.Handle, GL_GEOMETRY_VERTICES_OUT, 4)
 
 		self.link()
 		self.query_uniforms()
@@ -79,11 +80,11 @@ class Shader:
 		for i in range(count.value):
 			glGetActiveUniform(self.Handle, i, length, byref(l), byref(size), byref(_type), buf)
 			loc = glGetUniformLocation(self.Handle, buf.value)
-			self.uniforms[buf.value] = loc
+			self.uniforms[buf.value.decode()] = loc
 
 		del buf
 
-		#print self.uniforms
+		# print(self.uniforms)
 
 	def bind(self):
 		glUseProgram(self.Handle)

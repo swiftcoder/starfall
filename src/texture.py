@@ -12,8 +12,10 @@ class Texture:
 		self.height = height
 		self.depth = depth
 
+		self.tex : Optional[Any] = None
+
 	def delete(self):
-		if hasattr(self, 'tex'):
+		if self.tex:
 			self.tex.delete()
 		else:
 			glDeleteTextures(1, byref(self.id))
@@ -31,7 +33,7 @@ class Texture:
 			glDisable(self.target)
 
 	@classmethod
-	def create1D(Class, width, format=GL_RGBA, internal_format=GL_RGBA, type=GL_UNSIGNED_BYTE, data=None, filter=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE):
+	def create1D(cls, width, format=GL_RGBA, internal_format=GL_RGBA, type=GL_UNSIGNED_BYTE, data=None, filter=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE):
 		id = GLuint()
 		target = GL_TEXTURE_1D
 
@@ -45,12 +47,12 @@ class Texture:
 
 		glTexParameteri( target, GL_TEXTURE_WRAP_S, wrap );
 
-		t = Class(target, id, width)
+		t = cls(target, id, width)
 
 		return t
 
 	@classmethod
-	def create2D(Class, width, height, format=GL_RGBA, internal_format=GL_RGBA, type=GL_UNSIGNED_BYTE, data=None, filter=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE, mipmap=False):
+	def create2D(cls, width, height, format=GL_RGBA, internal_format=GL_RGBA, type=GL_UNSIGNED_BYTE, data=None, filter=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE, mipmap=False):
 		id = GLuint()
 		target = GL_TEXTURE_2D
 
@@ -75,12 +77,12 @@ class Texture:
 			if nformat.value != internal_format:
 				print('requested format not available, falling back to', nformat.value)
 
-		t = Class(target, id, width, height)
+		t = cls(target, id, width, height)
 
 		return t
 
 	@classmethod
-	def create3D(Class, width, height, depth, format=GL_RGBA, data=None):
+	def create3D(cls, width, height, depth, format=GL_RGBA, data=None):
 		id = GLuint()
 		target = GL_TEXTURE_3D
 
@@ -96,16 +98,16 @@ class Texture:
 		glTexParameteri( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		glTexParameteri( target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE );
 
-		t = Class(target, id, width, height, depth)
+		t = cls(target, id, width, height, depth)
 
 		return t
 
 	@classmethod
-	def load(Class, file, filter=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE):
+	def load(cls, file, filter=GL_LINEAR, wrap=GL_CLAMP_TO_EDGE):
 		image = pyglet.resource.texture(file)
 
-		t = Class(image.target, image.id, image.width, image.height)
-		t.tex = image.id
+		t = cls(image.target, image.id, image.width, image.height)
+		t.tex = image
 
 		t.bind()
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap );

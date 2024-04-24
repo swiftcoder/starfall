@@ -1,4 +1,5 @@
 
+from typing import Optional
 from .patch_factory import PatchFactory
 
 from pyglet.gl import *
@@ -30,15 +31,17 @@ def lerp(a, b, f):
 
 class TerrainPatch(object):
 	def __init__(self):
-		self.vertex_buffer = None
-		self.normal_map = None
-		self.va = None
+		self.vertex_buffer : Optional[VertexBuffer] = None
+		self.normal_map : Optional[Texture] = None
+		self.va : GLuint = 0
 
 	def delete(self):
 		if self.va:
 			glDeleteVertexArrays(1, byref(self.va))
-		self.vertex_buffer.delete()
-		self.normal_map.delete()
+		if self.vertex_buffer:
+			self.vertex_buffer.delete()
+		if self.normal_map:
+			self.normal_map.delete()
 
 class TerrainFactory(PatchFactory):
 	def __init__(self, tile_size, tex_size, height_gen, radius, scale):
@@ -402,8 +405,8 @@ class TerrainFactory(PatchFactory):
 
 		self.index_buffer.bind()
 
-		# glEnableClientState(GL_VERTEX_ARRAY)
-		# glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+		glEnableClientState(GL_VERTEX_ARRAY)
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY)
 
 		self.tex_coord_buffer.bind()
 		glTexCoordPointer(2, GL_FLOAT, 0, None)
