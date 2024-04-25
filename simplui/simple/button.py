@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (c) 2009 Tristam MacDonald
+# Copyright (c) 2024 Tristam MacDonald
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

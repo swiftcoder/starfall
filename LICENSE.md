@@ -30,19 +30,3 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 # -----------------------------------------------------------------------------
-
-from .element import *
-
-class Label(Element):
-	def __init__(self, text='', action=None):
-		Element.__init__(self)
-		
-		self.text = text
-	
-	def determine_size(self, state):
-		w, h = state.renderer.label_metrics(self.text)
-		
-		self.pref_size = Size(w, h)
-
-	def process(self, state, size):		
-		state.renderer.render_label(size, self.pref_size, self.text)
